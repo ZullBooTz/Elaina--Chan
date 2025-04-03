@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elaina Suka Ijul</title>
+    <link rel="stylesheet" href="style.css"> <!-- Kamu mungkin perlu menyesuaikan style.css atau menambahkan style baru -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Tambahan untuk Fitur Baru */
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden; /* Mencegah scroll horizontal */
+             background-color: #f8f8f8; /* Background abu-abu muda untuk kontras */
+        }
+
+        /* --- Styling untuk Bagian Password --- */
+        #password-section {
+            position: fixed; /* Tetap di posisi */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; /* Setinggi viewport */
+            background-color: white; /* Tema putih polos */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column; /* Konten ditumpuk vertikal */
+            z-index: 1000; /* Pastikan di atas konten lain */
+            padding: 20px;
+            box-sizing: border-box;
+             transition: opacity 0.5s ease-out; /* Transisi saat hilang */
+        }
+
+        #password-section.hidden {
+             opacity: 0;
+             pointer-events: none; /* Tidak bisa diklik saat hilang */
+        }
+
+        #password-form {
+            text-align: center;
+        }
+
+        #password-form label {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        #password-input {
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            width: 250px; /* Lebar input */
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        #password-submit {
+            padding: 10px 25px;
+            font-size: 1em;
+            background-color: black; /* Warna pink lembut */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #password-submit:hover {
+            background-color: black; /* Warna pink lebih gelap saat hover */
+        }
+
+        #error-message {
+            color: red;
+            margin-top: 15px;
+            font-size: 0.9em;
+             min-height: 1.2em; /* Beri ruang agar layout tidak geser */
+        }
+
+        /* --- Styling untuk Konten Utama --- */
+        .container {
+            /* Awalnya disembunyikan & siap untuk animasi */
+            opacity: 0;
+            transform: translateY(20px); /* Sedikit ke bawah untuk efek slide-up */
+            transition: opacity 1.2s ease-in-out, transform 1s ease-in-out;
+            visibility: hidden; /* Sembunyikan dari aksesibilitas awal */
+            position: relative; /* Dibutuhkan agar z-index tsparticles bekerja */
+            z-index: 1; /* Pastikan konten di atas tsparticles */
+             background-color: transparent; /* Pastikan background container tidak menutupi tsparticles */
+        }
+
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible; /* Tampilkan saat animasi selesai */
+        }
+
+        /* --- Styling untuk tsparticles (pastikan di belakang) --- */
+         #tsparticles {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             z-index: 0; /* Di belakang konten */
+              /* Background canvas harus transparan jika body punya warna */
+             /* Konfigurasi background di JS sudah 'transparent' */
+         }
+
+        /* --- Styling Halaman dan Navigasi (dari kode asli, mungkin perlu penyesuaian) --- */
+        .page {
+            display: none; /* Sembunyikan semua halaman secara default */
+            min-height: 80vh; /* Pastikan halaman cukup tinggi */
+            padding: 30px 20px 80px 20px; /* Padding atas, samping, bawah (beri ruang untuk tombol) */
+            box-sizing: border-box;
+            /* Tambahkan style lain yang diperlukan */
+             background-color: rgba(255, 255, 255, 0.8); /* Background agak transparan agar partikel terlihat */
+             border-radius: 15px;
+             margin: 20px;
+             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .page.active {
+            display: block; /* Tampilkan halaman yang aktif */
+            animation: fadeInPage 0.8s ease-in-out; /* Animasi halus saat ganti halaman */
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100; /* Di atas konten halaman */
+        }
+
+        #next-button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 2em; /* Ukuran hati */
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background-color 0.3s ease;
+             display: flex; /* Agar hati di tengah tombol */
+             justify-content: center;
+             align-items: center;
+        }
+
+        #next-button:hover {
+            background-color: #db7093;
+            transform: scale(1.1);
+        }
+         #next-button:active {
+             transform: scale(0.95);
+         }
+
+         /* Style lain dari kode asli Anda (header, message, gallery, etc.) */
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { font-family: 'Pacifico', cursive; color: #ff69b4; font-size: 2.5em; margin-bottom: 10px;}
+        h2 { font-family: 'Pacifico', cursive; color: #db7093; text-align: center; margin-bottom: 20px;}
+        p, li { line-height: 1.7; color: #555; font-size: 1.05em;}
+        ul { list-style: none; padding-left: 0; }
+        li { margin-bottom: 12px; display: flex; align-items: start; }
+        li::before { content: ''; margin-right: 10px; /* Atau gunakan emoji langsung di teks */ }
+         .heart-animation { margin-top: 15px; }
+         .heart { display: block; margin: 0 auto; width: 50px; fill: #ff69b4; animation: heartbeat 1.5s infinite ease-in-out; }
+
+         @keyframes heartbeat {
+           0%, 100% { transform: scale(1); }
+           50% { transform: scale(1.15); }
+         }
+
+         .photo-gallery-section { text-align: center; }
+         .photo-gallery { margin-top: 20px; }
+         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px; }
+         .gallery-item { text-align: center; }
+         .gallery-item img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); margin-bottom: 5px; }
+         .gallery-item span { font-size: 0.9em; color: #666; font-style: italic; }
+         .gallery-note { margin-top: 25px; font-style: italic; color: #777; }
+
+         .moments, .closing { margin-bottom: 30px; }
+         .final-words { font-weight: bold; font-size: 1.2em; text-align: center; margin-top: 20px; color: #ff69b4; }
+         footer { text-align: center; margin-top: 40px; font-size: 0.95em; color: #888; }
+         footer hr { border: none; border-top: 1px solid #eee; margin: 10px auto; width: 50%;}
+
+    </style>
+</head>
+<body>
+
+    <!-- Bagian Password -->
+    <div id="password-section">
+        <div id="password-form">
+            <label for="password-input">Masukkan Password :</label>
+            <input type="password" id="password-input" placeholder="Password...">
+            <button type="button" id="password-submit">Masuk</button>
+            <p id="error-message"></p> <!-- Tempat pesan error -->
+        </div>
+    </div>
+
+    <!-- Konten Utama (Awalnya Tersembunyi) -->
+    <div class="container"> <!-- Container utama untuk konten -->
+
+        <div id="tsparticles"></div> <!-- Partikel dipindah ke dalam container utama tapi diatur z-index agar di belakang -->
+
+        <!-- Halaman 1: Sapaan Awal -->
+        <div id="page-1" class="page active">
+             <header>
+                 <h1>Untuk Elaina Kuuu...</h1>
+                 <div class="heart-animation">
+                     <svg class="heart" viewBox="0 0 32 29.6">
+                         <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
+                     </svg>
+                 </div>
+             </header>
+             <section class="message">
+                 <p>Hai Cantikk,</p>
+                 <p>Aku buat halaman kecil ini khusus untukmu, sebagai pengingat betapa beruntungnya aku memilikimu di hidupku. Setiap hari bersamamu terasa seperti mimpi yang jadi nyata.</p>
+                 <p style="font-style: italic; margin-top: 25px;">(Klik hati di bawah untuk lanjut yaa)</p>
+             </section>
+        </div>
+
+        <!-- HALAMAN 2: Kenapa Aku Mencintaimu (Alasan) -->
+        <div id="page-2" class="page">
+             <section class="why-i-love-you">
+                 <h2>Kenapa Aku Sangat Mencintaimu?</h2>
+                 <p>Jujur, alasannya banyak banget sampai susah disebutin satu-satu. Tapi ini beberapa hal yang selalu bikin aku jatuh cinta lagi dan lagi sama kamu:</p>
+                 <ul>
+                     <li>✨ Senyummu yang selalu bisa mencerahkan hariku yang paling mendung sekalipun.</li>
+                     <li>💖 Sifat baikmu dan keramahan kamu sama orang lain.</li>
+                     <li>😊 Sifat dan tingkah lucumu setiap hari.</li>
+                     <li>🌟 Kamu selalu ada, jadi support system terbaikku dalam suka maupun duka.</li>
+                     <li>🌷 Kamu itu... ya просто kamu. Sempurna dengan caramu sendiri.</li>
+                     <li><Strong>Yang membuatku sangatt mencintaimu, kamu bisa menerimaku apa adanya.</Strong></li>
+                     <li><Strong>Entah kamu bersungguh-sungguh atau tidak, aku tetap menganggapnya serius hehe.</Strong></li>
+                 </ul>
+             </section>
+        </div>
+
+        <!-- HALAMAN 3: Galeri Foto -->
+        <div id="page-3" class="page">
+              <section class="photo-gallery-section">
+                  <h2>Kenapa Aku Selalu Bahagia?</h2>
+                  <div class="photo-gallery">
+                      <div class="gallery-grid">
+                          <div class="gallery-item">
+                              <img src="https://files.catbox.moe/yfgr36.jpg" alt="Foto Elaina 1">
+                              <span>Senyum Manismu <3</span>
+                          </div>
+                          <div class="gallery-item">
+                              <img src="https://files.catbox.moe/hfpfod.jpg" alt="Foto Elaina 2">
+                              <span>Pose Lucu</span>
+                          </div>
+                          <div class="gallery-item">
+                              <img src="https://files.catbox.moe/y29xjo.jpg" alt="Foto Elaina 3">
+                              <span>Pas Lagi Sok Cool~</span>
+                          </div>
+                          <div class="gallery-item">
+                              <img src="https://files.catbox.moe/39g1iq.jpg" alt="Foto Elaina 4">
+                              <span>Waktu Kamu Luang?</span>
+                          </div>
+                          <div class="gallery-item">
+                              <img src="https://files.catbox.moe/9wvbrv.jpg" alt="Foto Elaina 5">
+                              <span>Ekspresmu Gemes bgtt</span>
+                          </div>
+                          <div class="gallery-item">
+                              <img src="https://files.catbox.moe/wuo6mx.jpg" alt="Foto Elaina 6">
+                              <span>Cantikmu Selalu ada <3</span>
+                          </div>
+                      </div>
+                  </div>
+                 <p class="gallery-note"><em>(Imut banget kan cewekku?!)</em></p>
+              </section>
+        </div>
+
+        <!-- HALAMAN 4: Momen & Penutup -->
+        <div id="page-4" class="page">
+             <section class="moments">
+                 <h2>Momen Kita?</h2>
+                 <p>Ingat nggak waktu pertama kali kita kenal? Kamu member grup bot wa ku hahaha, entah kenapa aku tertarik sama kamu saat itu. Setiap detik bersamamu adalah kenangan berharga yang akan selalu kusimpan di hati.</p>
+                 <!-- Kamu bisa menambahkan foto kalian berdua di sini jika mau -->
+             </section>
+
+             <section class="closing">
+                 <h2>Harapanku Aja sii hehe</h2>
+                 <p>Aku berharap kita bisa terus bersama, melewati banyak momen indah lainnya, saling mendukung, dan terus menumbuhkan perasaan ini. Kamu adalah segalanya bagiku, Elaina.</p>
+                 <p class="final-words">I Love You more than words can say!</p>
+             </section>
+
+             <footer>
+                 Dengan segenap hatiku,<br>
+                 Ijul ❤️<hr>Kalau suka pap banya" iaa ><
+             </footer>
+        </div>
+
+        <!-- Tombol Navigasi Hati -->
+        <div class="navigation">
+            <button id="next-button" aria-label="Halaman Berikutnya">💖</button>
+        </div>
+
+    </div> <!-- Akhir dari .container -->
+
+    <!-- Elemen Audio -->
+    <!-- Ganti 'URL_MUSIK_KAMU.mp3' dengan URL musik yang valid -->
+    <audio id="background-music" loop>
+        <source src="https://files.catbox.moe/5udr96.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+
+    <script>
+        // --- Variabel Global ---
+        const passwordSection = document.getElementById('password-section');
+        const passwordInput = document.getElementById('password-input');
+        const passwordSubmit = document.getElementById('password-submit');
+        const errorMessage = document.getElementById('error-message');
+        const mainContainer = document.querySelector('.container');
+        const bgMusic = document.getElementById('background-music');
+        const correctPassword = "Takaz"; // Passwordnya
+
+        // --- Fungsi untuk Memeriksa Password ---
+        function checkPassword() {
+            const enteredPassword = passwordInput.value;
+            if (enteredPassword === correctPassword) {
+                // Password Benar
+                errorMessage.textContent = ''; // Hapus pesan error jika ada
+                passwordSection.classList.add('hidden'); // Sembunyikan bagian password dengan transisi
+
+                // Tunggu transisi selesai sebelum menampilkan konten utama
+                 setTimeout(() => {
+                    passwordSection.style.display = 'none'; // Hapus dari layout setelah transisi
+                    mainContainer.classList.add('visible'); // Tampilkan konten utama dengan animasi
+
+                    // Inisialisasi skrip HANYA setelah password benar
+                    initializeMainContentScripts();
+
+                    // Coba putar musik
+                    playBackgroundMusic();
+
+                 }, 500); // Sesuaikan durasi timeout dengan transisi CSS (0.5s)
+
+            } else {
+                // Password Salah
+                errorMessage.textContent = 'Password salah, coba lagi yaa >.<';
+                passwordInput.value = ''; // Kosongkan input
+                passwordInput.focus(); // Fokus kembali ke input
+                 // Optional: Animasi shake kecil
+                 passwordSection.querySelector('#password-form').animate([
+                     { transform: 'translateX(-10px)' },
+                     { transform: 'translateX(10px)' },
+                     { transform: 'translateX(-5px)' },
+                     { transform: 'translateX(5px)' },
+                     { transform: 'translateX(0)' }
+                 ], {
+                     duration: 300,
+                     easing: 'ease-in-out'
+                 });
+            }
+        }
+
+        // --- Fungsi untuk Memutar Musik ---
+        function playBackgroundMusic() {
+            // Coba putar musik, tangani potensi error autoplay
+            bgMusic.play().catch(error => {
+                console.warn("Autoplay dicegah oleh browser:", error);
+                // Mungkin perlu memberi tahu pengguna untuk mengklik sesuatu agar musik mulai
+                // alert("Klik di mana saja untuk memulai musik");
+                // document.body.addEventListener('click', () => bgMusic.play(), { once: true });
+            });
+        }
+
+        // --- Event Listener untuk Tombol Submit Password ---
+        passwordSubmit.addEventListener('click', checkPassword);
+
+        // --- Event Listener untuk Enter di Input Password ---
+        passwordInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Mencegah submit form default (jika ada)
+                checkPassword();
+            }
+        });
+
+        // --- Fungsi untuk Inisialisasi Skrip Konten Utama ---
+        // (Memindahkan logika DOMContentLoaded ke sini agar dijalankan setelah login)
+        function initializeMainContentScripts() {
+            console.log("Inisialisasi skrip konten utama..."); // Debug log
+
+            // --- BAGIAN NAVIGASI HALAMAN ---
+            const pages = document.querySelectorAll('.page');
+            const nextButton = document.getElementById('next-button');
+            let currentPageIndex = 0;
+
+            if (nextButton && pages.length > 0) {
+                nextButton.addEventListener('click', () => {
+                    if (pages[currentPageIndex]) {
+                        pages[currentPageIndex].classList.remove('active');
+                    }
+                    currentPageIndex++;
+                    if (currentPageIndex < pages.length) {
+                        if (pages[currentPageIndex]) {
+                            pages[currentPageIndex].classList.add('active');
+                        }
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    if (currentPageIndex >= pages.length - 1) {
+                        nextButton.style.display = 'none';
+                    }
+                });
+
+                // Inisialisasi Halaman Pertama
+                pages.forEach((page, index) => {
+                    if (index === 0) {
+                        page.classList.add('active'); // Pastikan halaman pertama aktif saat konten muncul
+                    } else {
+                        page.classList.remove('active');
+                    }
+                });
+
+                // Tampilkan/sembunyikan tombol navigasi berdasarkan jumlah halaman
+                 if (pages.length <= 1 || currentPageIndex >= pages.length - 1) {
+                     nextButton.style.display = 'none';
+                 } else {
+                     nextButton.style.display = 'flex'; // Gunakan flex agar align-items bekerja
+                 }
+
+            } else {
+                 console.warn("Elemen navigasi halaman (.page atau #next-button) tidak ditemukan di dalam .container.");
+            }
+
+            // --- BAGIAN INISIALISASI PARTICLES ---
+            if (typeof tsParticles !== 'undefined') {
+                tsParticles.load("tsparticles", { // Target ID #tsparticles di dalam .container
+                    particles: {
+                        number: { value: 35, density: { enable: true, value_area: 800 } },
+                        color: { value: ["#ffb6c1", "#ffc0cb", "#ffdde1", "#ff69b4", "#db7093"] },
+                        shape: { type: "heart" },
+                        opacity: { value: { min: 0.2, max: 0.7 }, animation: { enable: true, speed: 0.5, minimumValue: 0.1, sync: false } },
+                        size: { value: { min: 5, max: 12 } },
+                        links: { enable: false },
+                        move: {
+                            enable: true,
+                            speed: { min: 1, max: 3 },
+                            direction: "bottom",
+                            straight: true,
+                            outModes: { default: "out" },
+                            bounce: false
+                        }
+                    },
+                    interactivity: {
+                         detectsOn: "window", // Deteksi interaktivitas pada window/canvas
+                         events: { onHover: { enable: false }, onClick: { enable: false }, resize: { enable: true } },
+                    },
+                    detectRetina: true,
+                    fpsLimit: 60,
+                    // Fullscreen diatur oleh CSS #tsparticles (position fixed)
+                     fullScreen: {
+                         enable: false // Karena kita atur manual dengan CSS
+                     },
+                     background: { // Pastikan background canvas transparan
+                         color: 'transparent'
+                     },
+                     zLayers: 1, // Hanya 1 layer
+                }).then(container => {
+                    console.log("tsParticles loaded successfully:", container);
+                }).catch(error => {
+                     console.error("Error loading tsParticles:", error);
+                });
+            } else {
+                console.error("tsParticles library not loaded. Particles will not be displayed.");
+            }
+
+        } // Akhir dari initializeMainContentScripts
+
+        // Catatan: Jangan jalankan initializeMainContentScripts() di sini.
+        // Itu akan dipanggil HANYA setelah password benar di dalam fungsi checkPassword().
+
+    </script>
+</body>
+</html>
